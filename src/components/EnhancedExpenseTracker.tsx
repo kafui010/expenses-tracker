@@ -45,7 +45,6 @@ import * as z from 'zod'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-
 const expenseCategories = [
   'Food',
   'Drugs',
@@ -57,12 +56,19 @@ const expenseCategories = [
   'Others',
 ]
 
+interface ExpenseData {
+  current: number;
+  previous: number;
+}
+
+interface ChartData {
+  [key: string]: ExpenseData;
+}
 
 const formSchema = z.object({
   amount: z.number().min(0.01, 'Amount must be greater than 0'),
   category: z.string().min(1, 'Please select a category'),
 })
-
 
 export default function EnhancedExpenseTracker() {
   const [expenses, setExpenses] = useState(() => {
@@ -105,7 +111,6 @@ export default function EnhancedExpenseTracker() {
         filteredExpensesRef.current.scrollTop = scrollPosition
       }
     }, 50)
-
 
     return () => clearInterval(scrollInterval)
   }, [scrollPosition, isPaused])
@@ -190,8 +195,7 @@ export default function EnhancedExpenseTracker() {
     const currentPeriodExpenses = getFilteredExpenses()
     const previousPeriodExpenses = getPreviousPeriodExpenses()
 
-
-    const data = {}
+    const data: ChartData = {}
     currentPeriodExpenses.forEach((expense) => {
       const date = format(new Date(expense.date), 'yyyy-MM-dd')
       if (data[date]) {
@@ -201,7 +205,6 @@ export default function EnhancedExpenseTracker() {
       }
     })
 
-
     previousPeriodExpenses.forEach((expense) => {
       const date = format(new Date(expense.date), 'yyyy-MM-dd')
       if (data[date]) {
@@ -210,7 +213,6 @@ export default function EnhancedExpenseTracker() {
         data[date] = { current: 0, previous: expense.amount }
       }
     })
-
 
     return Object.entries(data).map(([date, amounts]) => ({
       date,
@@ -239,7 +241,6 @@ export default function EnhancedExpenseTracker() {
         return []
     }
 
-
     return expenses.filter((expense) => {
       const expenseDate = new Date(expense.date)
       return expenseDate >= startDate && expenseDate <= endDate
@@ -261,10 +262,9 @@ export default function EnhancedExpenseTracker() {
     const background = useTransform(
       x,
       [-100, 0, 100],
-      ['rgba(239, 68, 68, 0.2)', 'rgba(255, 255, 255, 0)', 'rgba(34, 197, 94, 0.2)']
+      ['rgba(239, 68, 68, 0.2)', 'rgba(255, 255, 255, 0.95)', 'rgba(34, 197, 94, 0.2)']
     )
     const [editAmount, setEditAmount] = useState(expense.amount.toFixed(2))
-
 
     return (
       <motion.div
@@ -283,7 +283,7 @@ export default function EnhancedExpenseTracker() {
           }
           setIsPaused(false) // Resume scrolling after action
         }}
-        className="bg-gradient-to-r from-indigo-100 to-purple-100 p-4 rounded-lg mb-4 shadow-md transition-all duration-300 cursor-grab active:cursor-grabbing hover:shadow-lg hover:scale-102"
+        className="bg-white/95 backdrop-blur-sm p-4 rounded-lg mb-4 shadow-md transition-all duration-300 cursor-grab active:cursor-grabbing hover:shadow-lg hover:scale-102 border border-indigo-100"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
@@ -320,11 +320,9 @@ export default function EnhancedExpenseTracker() {
     )
   }
 
-
   return (
     <div className="container mx-auto p-4 bg-gradient-to-br from-purple-50 to-indigo-100 min-h-screen">
       <h1 className="text-4xl font-bold mb-8 text-center text-indigo-800 animate-fade-in-down">Enhanced Expense Tracker</h1>
-
 
       <AnimatePresence>
         {showAlert && (
@@ -344,7 +342,6 @@ export default function EnhancedExpenseTracker() {
           </motion.div>
         )}
       </AnimatePresence>
-
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card className="bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -400,7 +397,6 @@ export default function EnhancedExpenseTracker() {
           </CardContent>
         </Card>
 
-
         <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <CardTitle className="text-2xl">Filtered Expenses</CardTitle>
@@ -430,7 +426,6 @@ export default function EnhancedExpenseTracker() {
           </CardContent>
         </Card>
       </div>
-
 
       <Card className="mt-8 bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow duration-300">
         <CardHeader>
@@ -471,10 +466,10 @@ export default function EnhancedExpenseTracker() {
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
-                  mode={totalTimeFrame === 'year' ? 'year' : totalTimeFrame === 'month' ? 'month' : 'day'}
+                  mode="single"
                   selected={selectedDate}
                   onSelect={(date) => {
-                    setSelectedDate(date)
+                    setSelectedDate(date || new Date())
                     // Close the popover after selection
                     document.body.click()
                   }}
@@ -493,7 +488,6 @@ export default function EnhancedExpenseTracker() {
           </div>
         </CardContent>
       </Card>
-
 
       <Card className="mt-8 bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-shadow duration-300">
         <CardHeader>
