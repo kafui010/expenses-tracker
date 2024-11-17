@@ -18,12 +18,14 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
+interface ChartData {
+  date: string;
+  current: number;
+  previous: number;
+}
+
 interface ExpenseChartProps {
-  data: Array<{
-    date: string;
-    current: number;
-    previous: number;
-  }>;
+  data: ChartData[];
   onReset: () => void;
 }
 

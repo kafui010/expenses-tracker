@@ -25,6 +25,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { ExpenseFormData } from '@/types/expense'
 
 const expenseCategories = [
   'Food',
@@ -38,16 +39,16 @@ const expenseCategories = [
 ]
 
 const formSchema = z.object({
-  amount: z.number().min(0.01, 'Amount must be greater than 0'),
+  amount: z.string().min(1, 'Amount is required'),
   category: z.string().min(1, 'Please select a category'),
 })
 
 interface ExpenseFormProps {
-  onSubmit: (values: { amount: number; category: string }) => void;
+  onSubmit: (values: ExpenseFormData) => void;
 }
 
 export function ExpenseForm({ onSubmit }: ExpenseFormProps) {
-  const form = useForm({
+  const form = useForm<ExpenseFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       amount: '',
@@ -75,8 +76,7 @@ export function ExpenseForm({ onSubmit }: ExpenseFormProps) {
                       type="number" 
                       step="0.01" 
                       placeholder="0.00" 
-                      {...field} 
-                      onChange={(e) => field.onChange(parseFloat(e.target.value))} 
+                      {...field}
                       className="bg-white/50" 
                     />
                   </FormControl>

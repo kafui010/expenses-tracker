@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle } from 'lucide-react'
@@ -9,13 +7,14 @@ import { ExpenseForm } from './expense-tracker/ExpenseForm'
 import { ExpenseList } from './expense-tracker/ExpenseList'
 import { ExpenseSummary } from './expense-tracker/ExpenseSummary'
 import { ExpenseChart } from './expense-tracker/ExpenseChart'
+import { Expense, ExpenseFormData } from '@/types/expense'
 
 export default function EnhancedExpenseTracker() {
-  const [expenses, setExpenses] = useState(() => {
+  const [expenses, setExpenses] = useState<Expense[]>(() => {
     const savedExpenses = localStorage.getItem('expenses')
     return savedExpenses ? JSON.parse(savedExpenses) : []
   })
-  const [editingId, setEditingId] = useState(null)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [totalTimeFrame, setTotalTimeFrame] = useState('day')
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [showAlert, setShowAlert] = useState(false)
@@ -26,8 +25,8 @@ export default function EnhancedExpenseTracker() {
     localStorage.setItem('expenses', JSON.stringify(expenses))
   }, [expenses])
 
-  const onSubmit = (values) => {
-    const newExpense = {
+  const onSubmit = (values: ExpenseFormData) => {
+    const newExpense: Expense = {
       id: Date.now(),
       amount: parseFloat(values.amount),
       category: values.category,
@@ -39,7 +38,7 @@ export default function EnhancedExpenseTracker() {
     setTimeout(() => setShowAlert(false), 3000)
   }
 
-  const handleEdit = (id, newAmount) => {
+  const handleEdit = (id: number, newAmount: string) => {
     setExpenses(
       expenses.map((expense) =>
         expense.id === id ? { ...expense, amount: parseFloat(newAmount) } : expense
@@ -54,7 +53,7 @@ export default function EnhancedExpenseTracker() {
     }, 3000)
   }
 
-  const handleDelete = (id) => {
+  const handleDelete = (id: number) => {
     setExpenses(expenses.filter((expense) => expense.id !== id))
     setAlertMessage('Expense deleted successfully!')
     setShowAlert(true)
@@ -96,7 +95,7 @@ export default function EnhancedExpenseTracker() {
   }
 
   const getPreviousPeriodExpenses = () => {
-    let startDate, endDate
+    let startDate: Date, endDate: Date
     switch (totalTimeFrame) {
       case 'day':
         startDate = subMonths(startOfDay(selectedDate), 1)
@@ -124,7 +123,8 @@ export default function EnhancedExpenseTracker() {
     const currentPeriodExpenses = getFilteredExpenses()
     const previousPeriodExpenses = getPreviousPeriodExpenses()
 
-    const data = {}
+    const data: Record<string, { current: number; previous: number }> = {}
+    
     currentPeriodExpenses.forEach((expense) => {
       const date = format(new Date(expense.date), 'yyyy-MM-dd')
       if (data[date]) {
