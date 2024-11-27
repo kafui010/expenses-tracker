@@ -59,6 +59,7 @@ export function ExpenseItem({
   const handleEdit = () => {
     onEdit(expense.id, editAmount)
     setLocalPaused(false)
+    setIsPaused(false)
   }
 
   return (

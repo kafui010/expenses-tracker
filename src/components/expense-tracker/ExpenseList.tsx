@@ -39,31 +39,46 @@ export function ExpenseList({
   isPaused,
 }: ExpenseListProps) {
   const listRef = useRef<HTMLDivElement>(null)
+  const autoScrollRef = useRef<number>(0)
 
   useEffect(() => {
-    let scrollInterval: NodeJS.Timeout;
+    let animationFrameId: number;
     
-    if (expenses.length >= 3 && !isPaused && listRef.current) {
-      scrollInterval = setInterval(() => {
-        if (listRef.current) {
-          const { scrollTop, scrollHeight, clientHeight } = listRef.current
-          
-          // Reset to top when reached bottom
-          if (scrollTop + clientHeight >= scrollHeight) {
-            listRef.current.scrollTop = 0
-          } else {
-            listRef.current.scrollTop += 0.5 // Gentle scroll speed
-          }
+    const scroll = () => {
+      if (listRef.current && !isPaused && expenses.length >= 3) {
+        autoScrollRef.current += 0.5; // Gentle scroll speed
+        
+        if (autoScrollRef.current >= listRef.current.scrollHeight - listRef.current.clientHeight) {
+          autoScrollRef.current = 0;
         }
-      }, 50)
+        
+        listRef.current.scrollTop = autoScrollRef.current;
+        animationFrameId = requestAnimationFrame(scroll);
+      }
+    };
+
+    if (expenses.length >= 3 && !isPaused) {
+      animationFrameId = requestAnimationFrame(scroll);
     }
 
     return () => {
-      if (scrollInterval) {
-        clearInterval(scrollInterval)
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
       }
+    };
+  }, [expenses.length, isPaused]);
+
+  const handleManualScroll = (e: React.WheelEvent) => {
+    if (listRef.current) {
+      setIsPaused(true);
+      listRef.current.scrollTop += e.deltaY;
+      
+      // Resume auto-scroll after 2 seconds of no manual scrolling
+      setTimeout(() => {
+        setIsPaused(false);
+      }, 2000);
     }
-  }, [expenses.length, isPaused])
+  };
 
   return (
     <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -81,15 +96,10 @@ export function ExpenseList({
         <div
           ref={listRef}
           className="h-64 overflow-y-auto"
-          onWheel={(e) => {
-            e.preventDefault()
-            if (listRef.current) {
-              listRef.current.scrollTop += e.deltaY
-            }
-          }}
+          onWheel={handleManualScroll}
         >
           <AnimatePresence>
-            {expenses.map((expense) => (
+            {getFilteredExpenses().map((expense) => (
               <ExpenseItem
                 key={expense.id}
                 expense={expense}
