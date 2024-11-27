@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import {
@@ -24,6 +24,7 @@ interface ExpenseListProps {
   onEdit: (id: number, amount: string) => void;
   onDelete: (id: number) => void;
   setIsPaused: (isPaused: boolean) => void;
+  isPaused: boolean;
 }
 
 export function ExpenseList({
@@ -35,8 +36,34 @@ export function ExpenseList({
   onEdit,
   onDelete,
   setIsPaused,
+  isPaused,
 }: ExpenseListProps) {
   const listRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    let scrollInterval: NodeJS.Timeout;
+    
+    if (expenses.length >= 3 && !isPaused && listRef.current) {
+      scrollInterval = setInterval(() => {
+        if (listRef.current) {
+          const { scrollTop, scrollHeight, clientHeight } = listRef.current
+          
+          // Reset to top when reached bottom
+          if (scrollTop + clientHeight >= scrollHeight) {
+            listRef.current.scrollTop = 0
+          } else {
+            listRef.current.scrollTop += 0.5 // Gentle scroll speed
+          }
+        }
+      }, 50)
+    }
+
+    return () => {
+      if (scrollInterval) {
+        clearInterval(scrollInterval)
+      }
+    }
+  }, [expenses.length, isPaused])
 
   return (
     <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-shadow duration-300">

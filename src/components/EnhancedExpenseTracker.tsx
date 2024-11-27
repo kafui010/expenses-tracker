@@ -197,6 +197,7 @@ export default function EnhancedExpenseTracker() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           setIsPaused={setIsPaused}
+          isPaused={isPaused}
         />
       </div>
 
@@ -204,7 +205,10 @@ export default function EnhancedExpenseTracker() {
         totalTimeFrame={totalTimeFrame}
         selectedDate={selectedDate}
         total={calculateTotal()}
-        onTimeFrameChange={handleTimeFrameChange}
+        onTimeFrameChange={(value) => {
+          setTotalTimeFrame(value)
+          setSelectedDate(new Date())
+        }}
         onDateSelect={setSelectedDate}
       />
 
