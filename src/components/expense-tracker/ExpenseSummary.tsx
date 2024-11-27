@@ -93,7 +93,7 @@ export function ExpenseSummary({
           </Popover>
         </div>
         <div className="text-3xl font-bold text-indigo-800 animate-pulse">
-          Total: ${total}
+          Total: ₵{total}
         </div>
       </CardContent>
     </Card>
