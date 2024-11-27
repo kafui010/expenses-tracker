@@ -99,7 +99,7 @@ export function ExpenseList({
           onWheel={handleManualScroll}
         >
           <AnimatePresence>
-            {getFilteredExpenses().map((expense) => (
+            {expenses.map((expense) => (
               <ExpenseItem
                 key={expense.id}
                 expense={expense}
