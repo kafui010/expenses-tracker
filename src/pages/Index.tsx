@@ -1,7 +1,7 @@
-import EnhancedExpenseTracker from '../components/EnhancedExpenseTracker'
+import EnhancedExpenseTracker from '../components/EnhancedExpenseTracker';
 
 const Index = () => {
-  return <EnhancedExpenseTracker />
-}
+  return <EnhancedExpenseTracker />;
+};
 
-export default Index
+export default Index;

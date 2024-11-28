@@ -1,22 +1,12 @@
-import { useRef, useEffect } from 'react'
-import { AnimatePresence } from 'framer-motion'
-import { format } from 'date-fns'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { ExpenseItem } from './ExpenseItem'
+import { useRef, useEffect } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import { format } from 'date-fns';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ExpenseItem } from './ExpenseItem';
+import { Expense } from '@/types/expense';
 
 interface ExpenseListProps {
-  expenses: Array<{
-    id: number;
-    amount: number;
-    category: string;
-    date: Date;
-  }>;
+  expenses: Expense[];
   totalTimeFrame: string;
   selectedDate: Date;
   editingId: number | null;
@@ -38,15 +28,15 @@ export function ExpenseList({
   setIsPaused,
   isPaused,
 }: ExpenseListProps) {
-  const listRef = useRef<HTMLDivElement>(null)
-  const autoScrollRef = useRef<number>(0)
+  const listRef = useRef<HTMLDivElement>(null);
+  const autoScrollRef = useRef<number>(0);
 
   useEffect(() => {
     let animationFrameId: number;
     
     const scroll = () => {
       if (listRef.current && !isPaused && expenses.length >= 3) {
-        autoScrollRef.current += 0.5; // Gentle scroll speed
+        autoScrollRef.current += 0.5;
         
         if (autoScrollRef.current >= listRef.current.scrollHeight - listRef.current.clientHeight) {
           autoScrollRef.current = 0;
@@ -68,18 +58,6 @@ export function ExpenseList({
     };
   }, [expenses.length, isPaused]);
 
-  const handleManualScroll = (e: React.WheelEvent) => {
-    if (listRef.current) {
-      setIsPaused(true);
-      listRef.current.scrollTop += e.deltaY;
-      
-      // Resume auto-scroll after 2 seconds of no manual scrolling
-      setTimeout(() => {
-        setIsPaused(false);
-      }, 2000);
-    }
-  };
-
   return (
     <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader>
@@ -96,7 +74,10 @@ export function ExpenseList({
         <div
           ref={listRef}
           className="h-64 overflow-y-auto"
-          onWheel={handleManualScroll}
+          onWheel={(e) => {
+            setIsPaused(true);
+            setTimeout(() => setIsPaused(false), 2000);
+          }}
         >
           <AnimatePresence>
             {expenses.map((expense) => (
@@ -114,5 +95,5 @@ export function ExpenseList({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
